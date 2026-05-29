@@ -6,8 +6,25 @@
 
 > :warning: If the patch created is invalid KubeVirt will not be able to update or deploy the system. This is intended for special use cases and should not be used unless you know what you are doing.
 
-Valid resource types are: Deployment, DaemonSet, Service, ValidatingWebhookConfiguraton, MutatingWebhookConfiguration, APIService, and CertificateSecret. More information can be found in the [API spec](http://kubevirt.io/api-reference/master/definitions.html#_v1_customizecomponentspatch).
+Valid resource types are: Deployment, DaemonSet, Service, ValidatingWebhookConfiguraton, MutatingWebhookConfiguration, APIService, CertificateSecret, and Job. More information can be found in the [API spec](http://kubevirt.io/api-reference/master/definitions.html#_v1_customizecomponentspatch).
 
+The install-strategy Job uses `GenerateName`. Match it by its
+`GenerateName` prefix (without the trailing `-`):
+
+```yaml
+apiVersion: kubevirt.io/v1
+kind: KubeVirt
+metadata:
+  name: kubevirt
+  namespace: kubevirt
+spec:
+  customizeComponents:
+    patches:
+    - resourceType: Job
+      resourceName: virt-operator-install-strategy
+      patch: '{"spec":{"template":{"spec":{"containers":[{"name":"install-strategy-upload","resources":{"requests":{"cpu":"10m","memory":"64Mi"}}}]}}}}'
+      type: strategic
+```
 
 Example customization patch:
 ```yaml
